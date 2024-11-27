@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .game-container {
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 2px solid #000;
+            border-radius: 10px;
+            max-width: 500px;
+        }
+        h1 {
+            color: #000;
+            font-size: 24px;
+        }
+        h2 {
+            margin: 10px 0;
+        }
+        .info {
+            color: #333;
+            margin: 10px 0;
+        }
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 200px;
+        }
+        .keypad button {
+            padding: 15px;
+            font-size: 18px;
+            border: 1px solid #000;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        .keypad button:hover {
+            background-color: #ddd;
+        }
+        .input-container {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .developer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Guess the Number</h1>
+        <div id="game">
+            <h2>Level: <span id="level">1</span></h2>
+            <p class="info">Guess a number between 1 and <span id="range">10</span></p>
+            <div class="input-container">
+                <input type="text" id="guess-input" readonly placeholder="Enter your guess">
+            </div>
+            <div class="keypad">
+                <button onclick="addNumber(1)">1</button>
+                <button onclick="addNumber(2)">2</button>
+                <button onclick="addNumber(3)">3</button>
+                <button onclick="addNumber(4)">4</button>
+                <button onclick="addNumber(5)">5</button>
+                <button onclick="addNumber(6)">6</button>
+                <button onclick="addNumber(7)">7</button>
+                <button onclick="addNumber(8)">8</button>
+                <button onclick="addNumber(9)">9</button>
+                <button onclick="clearInput()">C</button>
+                <button onclick="addNumber(0)">0</button>
+                <button onclick="submitGuess()">✔</button>
+            </div>
+            <p id="feedback"></p>
+        </div>
+        <div id="game-over" class="hidden">
+            <h2>Game Over</h2>
+            <p>Level Reached: <span id="final-level"></span></p>
+            <p>Score: <span id="final-score"></span> out of <span id="max-score"></span></p>
+            <button onclick="restartGame()">Restart</button>
+        </div>
+        <div class="developer">Developed by Belal Amr</div>
+    </div>
+
+    <script>
+        let level = 1;
+        let score = 10;
+        let counter = 10;
+        let number = generateRandomNumber(counter);
+
+        function generateRandomNumber(max) {
+            return Math.floor(Math.random() * max) + 1;
+        }
+
+        function updateUI() {
+            document.getElementById("level").innerText = level;
+            document.getElementById("range").innerText = counter;
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("guess-input").value = "";
+        }
+
+        function addNumber(num) {
+            const input = document.getElementById("guess-input");
+            input.value += num;
+        }
+
+        function clearInput() {
+            document.getElementById("guess-input").value = "";
+        }
+
+        function submitGuess() {
+            const guess = parseInt(document.getElementById("guess-input").value, 10);
+
+            if (isNaN(guess)) {
+                document.getElementById("feedback").innerText = "Please enter a valid number!";
+                return;
+            }
+
+            if (guess === number) {
+                document.getElementById("feedback").innerText = `${guess} is the correct guess!`;
+                score += 30;
+                counter += 30;
+
+                if (level < 3) {
+                    level++;
+                    number = generateRandomNumber(counter);
+                    updateUI();
+                } else {
+                    endGame();
+                }
+            } else if (guess < number) {
+                document.getElementById("feedback").innerText = `${guess} is too low! Try again.`;
+                score -= 3;
+            } else if (guess > number) {
+                document.getElementById("feedback").innerText = `${guess} is too high! Try again.`;
+                score -= 3;
+            }
+        }
+
+        function endGame() {
+            document.getElementById("game").classList.add("hidden");
+            document.getElementById("game-over").classList.remove("hidden");
+            document.getElementById("final-level").innerText = level;
+            document.getElementById("final-score").innerText = score;
+            document.getElementById("max-score").innerText = counter;
+        }
+
+        function restartGame() {
+            level = 1;
+            score = 10;
+            counter = 10;
+            number = generateRandomNumber(counter);
+
+            document.getElementById("game").classList.remove("hidden");
+            document.getElementById("game-over").classList.add("hidden");
+            updateUI();
+        }
+
+        // Initialize UI on load
+        updateUI();
+    </script>
+</body>
+</html>

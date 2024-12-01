@@ -7,7 +7,8 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: #1e1e2f;
+            color: #fff;
             margin: 0;
             padding: 0;
             text-align: center;
@@ -15,20 +16,20 @@
         .game-container {
             margin: 50px auto;
             padding: 20px;
-            background-color: #fff;
-            border: 2px solid #000;
-            border-radius: 10px;
-            max-width: 500px;
+            background-color: #2e2e3f;
+            border-radius: 15px;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
         h1 {
-            color: #000;
-            font-size: 24px;
+            font-size: 28px;
+            margin-bottom: 10px;
         }
         h2 {
             margin: 10px 0;
         }
         .info {
-            color: #333;
+            color: #ccc;
             margin: 10px 0;
         }
         .keypad {
@@ -41,28 +42,50 @@
         .keypad button {
             padding: 15px;
             font-size: 18px;
-            border: 1px solid #000;
-            background-color: #f0f0f0;
+            border: none;
+            background-color: #3e3e5f;
+            color: #fff;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         .keypad button:hover {
-            background-color: #ddd;
+            background-color: #5e5e8f;
         }
-        .input-container {
-            margin: 20px 0;
+        .input-container input {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 10px;
         }
         button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
+            background-color: #3e3e5f;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #5e5e8f;
         }
         .developer {
             margin-top: 20px;
             font-size: 14px;
-            color: #555;
+            color: #aaa;
         }
         .hidden {
             display: none;
+        }
+        .feedback {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -89,16 +112,20 @@
                 <button onclick="addNumber(0)">0</button>
                 <button onclick="submitGuess()">✔</button>
             </div>
-            <p id="feedback"></p>
+            <p id="feedback" class="feedback"></p>
         </div>
         <div id="game-over" class="hidden">
             <h2>Game Over</h2>
             <p>Level Reached: <span id="final-level"></span></p>
             <p>Score: <span id="final-score"></span> out of <span id="max-score"></span></p>
+            <p>Thank you for playing!</p>
             <button onclick="restartGame()">Restart</button>
         </div>
         <div class="developer">Developed by Belal Amr</div>
     </div>
+
+    <audio id="correct-sound" src="https://bigsoundbank.com/UPLOAD/wav/1399.wav"></audio>
+    <audio id="wrong-sound" src="https://bigsoundbank.com/UPLOAD/wav/2059.wav"></audio>
 
     <script>
         let level = 1;
@@ -126,34 +153,47 @@
             document.getElementById("guess-input").value = "";
         }
 
-        function submitGuess() {
-            const guess = parseInt(document.getElementById("guess-input").value, 10);
-
-            if (isNaN(guess)) {
-                document.getElementById("feedback").innerText = "Please enter a valid number!";
-                return;
-            }
-
-            if (guess === number) {
-                document.getElementById("feedback").innerText = `${guess} is the correct guess!`;
-                score += 30;
-                counter += 30;
-
-                if (level < 3) {
-                    level++;
-                    number = generateRandomNumber(counter);
-                    updateUI();
-                } else {
-                    endGame();
-                }
-            } else if (guess < number) {
-                document.getElementById("feedback").innerText = `${guess} is too low! Try again.`;
-                score -= 3;
-            } else if (guess > number) {
-                document.getElementById("feedback").innerText = `${guess} is too high! Try again.`;
-                score -= 3;
-            }
+        function playSound(soundId) {
+            const sound = document.getElementById(soundId);
+            sound.currentTime = 0; 
+            sound.play();
         }
+
+        function submitGuess() {
+    const input = document.getElementById("guess-input");
+    const guess = parseInt(input.value, 10);
+
+    // Clear the input box immediately
+    input.value = "";
+
+    if (isNaN(guess)) {
+        document.getElementById("feedback").innerText = "Please enter a valid number!";
+        return;
+    }
+
+    if (guess === number) {
+        playSound("correct-sound");
+        document.getElementById("feedback").innerText = `${guess} is the correct guess!`;
+        score += 30;
+        counter += 30;
+
+        if (level < 3) {
+            level++;
+            number = generateRandomNumber(counter);
+            updateUI();
+        } else {
+            endGame();
+        }
+    } else if (guess < number) {
+        playSound("wrong-sound");
+        document.getElementById("feedback").innerText = `${guess} is too low! Try again.`;
+        score -= 3;
+    } else if (guess > number) {
+        playSound("wrong-sound");
+        document.getElementById("feedback").innerText = `${guess} is too high! Try again.`;
+        score -= 3;
+    }
+}
 
         function endGame() {
             document.getElementById("game").classList.add("hidden");
